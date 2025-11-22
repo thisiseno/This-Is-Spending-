@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Wallet, PlusCircle, Target, PieChart } from 'lucide-react';
+import { Home, Wallet, Plus, Target, PieChart } from 'lucide-react';
 import { ViewState } from '../types';
 
 interface BottomNavProps {
@@ -22,12 +22,12 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) => {
         <Wallet size={22} strokeWidth={2.5} />
       </button>
       
-      {/* FAB */}
+      {/* FAB (Floating Action Button) */}
       <button 
         onClick={() => onTabChange('log')} 
-        className="bg-gray-900 text-white p-3.5 rounded-full shadow-lg shadow-gray-900/20 transform transition-transform hover:scale-105 active:scale-95 -mt-8 border-4 border-gray-50"
+        className="bg-gradient-to-br from-gray-800 to-black text-white w-14 h-14 rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.3)] transform transition-all duration-300 hover:scale-110 active:scale-95 active:rotate-90 -mt-10 border-[6px] border-gray-50 flex items-center justify-center group"
       >
-        <PlusCircle size={28} strokeWidth={2.5} />
+        <Plus size={28} strokeWidth={3} className="transition-colors group-hover:text-gray-200" />
       </button>
 
       <button onClick={() => onTabChange('goals')} className={navItemClass('goals')}>

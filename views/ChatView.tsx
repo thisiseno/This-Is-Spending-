@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useFinance } from '../App';
 import { formatIDR } from '../utils';
 import { ChatMessage } from '../types';
-import { Send } from 'lucide-react';
+import { Send, ArrowLeft, Sparkles } from 'lucide-react';
 
 const ChatView: React.FC = () => {
-  const { assets, transactions, budget, goals } = useFinance();
+  const { assets, transactions, budget, goals, setView } = useFinance();
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: 1, text: "Hi! I'm your financial assistant. Ask me about your assets, recent spending, or budget!", sender: 'bot', timestamp: new Date() }
   ]);
@@ -53,6 +53,8 @@ const ChatView: React.FC = () => {
           } else {
             responseText = "You haven't set any goals yet!";
           }
+       } else if (/hello|hi|hey/.test(lower)) {
+           responseText = "Hello there! Ready to manage your finances?";
        }
 
        const botMsg: ChatMessage = { id: Date.now() + 1, text: responseText, sender: 'bot', timestamp: new Date() };
@@ -61,39 +63,73 @@ const ChatView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[85vh] pb-20">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">Assistant</h1>
+    // Using negative margins to break out of the parent p-6 padding for a full-screen experience
+    <div className="flex flex-col h-[calc(100vh-2rem)] -m-6 bg-gray-50 relative">
       
-      <div className="flex-1 overflow-y-auto space-y-4 no-scrollbar pb-4">
+      {/* Header */}
+      <div className="bg-white px-4 py-3 shadow-sm flex items-center sticky top-0 z-10 border-b border-gray-100">
+          <button 
+            onClick={() => setView('dashboard')} 
+            className="p-2 -ml-1 rounded-full text-gray-600 hover:bg-gray-50 active:scale-95 transition-transform"
+          >
+             <ArrowLeft size={22} />
+          </button>
+          <div className="flex-1 text-center mr-8">
+             <h1 className="font-bold text-lg text-gray-900">Assistant</h1>
+          </div>
+      </div>
+      
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-4">
          {messages.map(msg => (
-           <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
-                msg.sender === 'user' 
-                  ? 'bg-gray-900 text-white rounded-br-sm' 
-                  : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-sm'
-              }`}>
-                 {msg.text}
+           <div key={msg.id} className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`flex max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} gap-2`}>
+                 
+                 {/* Avatar for Bot */}
+                 {msg.sender === 'bot' && (
+                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white shadow-sm flex-shrink-0 mt-1">
+                      <Sparkles size={14} />
+                   </div>
+                 )}
+
+                 {/* Bubble */}
+                 <div className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                    <div className={`px-4 py-3 rounded-2xl text-sm font-medium leading-relaxed shadow-sm ${
+                        msg.sender === 'user' 
+                        ? 'bg-gray-900 text-white rounded-tr-sm' 
+                        : 'bg-white text-gray-800 border border-gray-100 rounded-tl-sm'
+                    }`}>
+                        {msg.text}
+                    </div>
+                    <span className="text-[10px] text-gray-400 mt-1 px-1">
+                        {msg.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    </span>
+                 </div>
               </div>
            </div>
          ))}
          <div ref={scrollRef} />
       </div>
 
-      <div className="mt-4 relative">
-         <input 
-           type="text" 
-           value={input}
-           onChange={e => setInput(e.target.value)}
-           onKeyDown={e => e.key === 'Enter' && handleSend()}
-           placeholder="Ask about your money..."
-           className="w-full p-4 pr-12 bg-white rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.05)] border-none focus:ring-2 focus:ring-violet-500 text-sm font-medium"
-         />
-         <button 
-           onClick={handleSend}
-           className="absolute right-2 top-2 p-2 bg-violet-600 text-white rounded-full hover:bg-violet-700 transition-colors"
-         >
-           <Send size={18} />
-         </button>
+      {/* Input Area */}
+      <div className="bg-white border-t border-gray-100 p-4 z-10 pb-6">
+         <div className="relative flex items-center gap-2 bg-gray-100 rounded-full p-1 pr-1">
+             <input 
+               type="text" 
+               value={input}
+               onChange={e => setInput(e.target.value)}
+               onKeyDown={e => e.key === 'Enter' && handleSend()}
+               placeholder="Ask about your money..."
+               className="flex-1 pl-5 py-3 bg-transparent border-none focus:ring-0 text-sm font-medium text-gray-900 placeholder-gray-400"
+             />
+             <button 
+               onClick={handleSend}
+               disabled={!input.trim()}
+               className="p-3 bg-violet-600 text-white rounded-full hover:bg-violet-700 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+             >
+               <Send size={18} />
+             </button>
+         </div>
       </div>
     </div>
   );

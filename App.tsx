@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Asset, Goal, Transaction, BudgetConfig, ViewState, Category } from './types';
 import { INITIAL_ASSETS, INITIAL_GOALS, INITIAL_TRANSACTIONS, DEFAULT_CATEGORIES } from './constants';
@@ -31,6 +32,7 @@ interface FinanceContextType {
   deleteGoal: (id: number) => void;
   addCategory: (c: Category) => void;
   resetData: () => void;
+  clearData: () => void;
   updateBudget: (config: BudgetConfig) => void;
 }
 
@@ -174,6 +176,7 @@ const App: React.FC = () => {
   const updateBudget = (config: BudgetConfig) => setBudget(config);
   const addCategory = (c: Category) => setCategories(prev => [...prev, c]);
 
+  // Restore Factory Defaults (Demo Data)
   const resetData = () => {
     setAssets(INITIAL_ASSETS);
     setGoals(INITIAL_GOALS);
@@ -185,6 +188,19 @@ const App: React.FC = () => {
     setCategories(DEFAULT_CATEGORIES);
   };
 
+  // Wipe Everything (Empty State)
+  const clearData = () => {
+    setAssets([]);
+    setGoals([]);
+    setTransactions([]);
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+    setBudget({ limit: 5000000, startDate: firstDay, endDate: lastDay });
+    // We keep categories default for usability
+    setCategories(DEFAULT_CATEGORIES);
+  };
+
   return (
     <FinanceContext.Provider value={{
       assets, goals, transactions, budget, categories,
@@ -192,7 +208,7 @@ const App: React.FC = () => {
       addTransaction, deleteTransaction,
       addAsset, updateAsset, deleteAsset, 
       addGoal, updateGoal, deleteGoal,
-      addCategory, resetData, updateBudget
+      addCategory, resetData, clearData, updateBudget
     }}>
       <div className="min-h-screen bg-gray-50 text-gray-900 flex justify-center font-sans antialiased selection:bg-violet-200">
         {/* Mobile Container */}
