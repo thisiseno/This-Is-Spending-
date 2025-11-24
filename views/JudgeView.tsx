@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useFinance } from '../App';
 import { Gavel, Sparkles, ArrowLeft } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 
 // Initialize Gemini
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -40,20 +40,37 @@ const JudgeView: React.FC = () => {
       - Monthly Spending Limit: IDR ${budget.limit}
       
       Evaluate this purchase.
-      Return ONLY a JSON object with this format:
-      { "decision": "APPROVED" | "DENIED" | "RISKY", "explanation": "Short 2 sentence reason why." }
     `;
 
     try {
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              decision: {
+                type: Type.STRING,
+                enum: ['APPROVED', 'DENIED', 'RISKY'],
+              },
+              explanation: {
+                type: Type.STRING,
+              },
+            },
+            required: ['decision', 'explanation'],
+          },
+        },
       });
       
       const text = response.text || '';
-      // Simple parsing attempt
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      const result = jsonMatch ? JSON.parse(jsonMatch[0]) : { decision: 'ERROR', explanation: "Couldn't analyze. Try again." };
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (e) {
+        result = { decision: 'ERROR', explanation: "Couldn't analyze. Try again." };
+      }
       
       setVerdict(result);
     } catch (error) {
