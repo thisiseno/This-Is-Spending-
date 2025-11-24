@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useFinance } from '../App';
 import { formatIDR } from '../utils';
-import { ArrowLeft, Trash2, Search, Calendar, Filter } from 'lucide-react';
+import { ArrowLeft, Trash2, Search, Calendar } from 'lucide-react';
 import { Modal } from '../components/ui/Modal';
 import { Transaction } from '../types';
 
@@ -62,10 +63,11 @@ const HistoryView: React.FC = () => {
   };
 
   return (
-    <div className="pb-20 min-h-screen flex flex-col bg-gray-50">
+    // Added -m-6 to break out of App.tsx padding for full screen width
+    <div className="pb-24 min-h-[calc(100vh-2rem)] -m-6 flex flex-col bg-gray-50 relative">
        {/* Header */}
        <div className="flex items-center gap-3 px-6 py-5 bg-white sticky top-0 z-20 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
-           <button onClick={() => setView('dashboard')} className="p-2 -ml-2 rounded-full text-gray-500 hover:bg-gray-50 transition-colors">
+           <button onClick={() => setView('dashboard')} className="p-2 -ml-2 rounded-full text-gray-500 hover:bg-gray-50 transition-colors active:scale-95">
               <ArrowLeft size={22} />
            </button>
            <h1 className="text-2xl font-bold text-gray-900">History</h1>
@@ -79,7 +81,7 @@ const HistoryView: React.FC = () => {
               <Search className="absolute left-4 top-3.5 text-gray-400" size={18} />
               <input 
                 type="text" 
-                placeholder="Search transactions..." 
+                placeholder="Search title or category..." 
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 className="w-full pl-12 p-3.5 bg-gray-50 rounded-2xl border-none text-sm font-bold text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-violet-100 transition-all"
